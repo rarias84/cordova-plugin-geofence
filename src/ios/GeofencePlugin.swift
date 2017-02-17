@@ -362,8 +362,43 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate {
     func locationManager(manager: CLLocationManager, monitoringDidFailForRegion region: CLRegion?, withError error: NSError) {
         log("Monitoring region " + region!.identifier + " failed " + error.description)
     }
+
+    func callService(){
+         //Aquí llamar a servicio. Primero en duro, después programable.
+         let url : String = "http://dev.adderou.cl/transanpbl/busdata.php?paradero=PC903"
+         //var request : NSMutableURLRequest = NSMutableURLRequest()
+         let requestURL = NSURL(string:"\(url)")!
+         let request = NSMutableURLRequest(URL: requestURL)
+         request.HTTPMethod = "GET"
+         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+         request.addValue("application/json", forHTTPHeaderField: "Accept")
+         
+         let session = NSURLSession.sharedSession()
+         
+         let task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
+             print("Response: \(response)")
+             if response == nil {
+                 return
+             }
+             let httpResponse = response as! NSHTTPURLResponse
+             let statusCode = httpResponse.statusCode
+             print(statusCode)
+             
+             if (statusCode == 200) {
+                 do{
+                     let json = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments) as! [String:AnyObject]
+                     print(json)
+                 }catch {
+                     print("Error with Json: \(error)")
+                 }
+             }
+             
+         })
+         task.resume()
+    }
     
     func handleTransition(region: CLRegion!, transitionType: Int) {
+        callService()
         if region is CLCircularRegion {
             if var geoNotification = store.findById(region.identifier) {
                 geoNotification["transitionType"].int = transitionType
