@@ -97,6 +97,7 @@ window.geofence.addOrUpdate({
         dateStart:      Date, // Initial Date to start dispatch events of a Geofence - Optiona parameter
         dateEnd:        Date, // End Date to stop dispatch events of a Geofence - Optiona parameter
         happensOnce:    Boolean,  // only show a notification once - Default value false
+        secondsBetweenNotifications : 0 //Seconds Between Notifications. - Optional parameter.
     }
 }).then(function () {
     console.log('Geofence successfully added');
