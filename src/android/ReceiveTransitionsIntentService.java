@@ -199,26 +199,17 @@ public class ReceiveTransitionsIntentService extends IntentService {
             if (secondsBetweenNotifications == 0) {
                 showNotification = true;
             }else{
-                //dateStart debe ser la fecha que anteriormente se lanzó la notificación
-                //dateEnd debe ser la fecha límite en que no debe lanzarse una notificación (en este caso dateStart+secondsBetweenNotifications)
-                //dateNow es ahora. Solo se pueden lanzar notificaciones si la dateNow es posterior a dateEnd.
                 if (timestampNotificationShowed == null ){
                     showNotification = true;
                 }else{
-
 //                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Vamo a calcular ");
-
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(timestampNotificationShowed);
                     calendar.add(Calendar.SECOND, secondsBetweenNotifications);
-
 //                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Now "+dateNow);
 //                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - timestampNotificationShowed "+timestampNotificationShowed);
 //                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - calendar.getTime() o sea +120 segundos "+calendar.getTime());
-
-                    showNotification = !dateIsBetweenIntervalDate(
-                        dateNow, timestampNotificationShowed, calendar.getTime()
-                    );
+                    showNotification = !dateIsBetweenIntervalDate(dateNow, timestampNotificationShowed, calendar.getTime());
 //                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - showNotification  "+showNotification);
                 }
                 if (showNotification){
@@ -249,6 +240,13 @@ public class ReceiveTransitionsIntentService extends IntentService {
             }
 
             showNotification = dateIsBetweenIntervalDate(dateNow, dateStart, dateEnd);
+
+            if (timestampNotificationShowed != null ){
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(timestampNotificationShowed);
+                calendar.add(Calendar.SECOND, secondsBetweenNotifications);
+                showNotification = showNotification ? !dateIsBetweenIntervalDate(dateNow, timestampNotificationShowed, calendar.getTime()) : showNotification;
+            }
 
             if(showNotification && !notificationShowed && happensOnce) {
                 geoNotification.notification.notificationShowed = true;

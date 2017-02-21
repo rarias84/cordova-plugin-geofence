@@ -398,7 +398,7 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate {
     }
     
     func handleTransition(region: CLRegion!, transitionType: Int) {
-        callService()
+        //callService()
         if region is CLCircularRegion {
             if var geoNotification = store.findById(region.identifier) {
                 geoNotification["transitionType"].int = transitionType
