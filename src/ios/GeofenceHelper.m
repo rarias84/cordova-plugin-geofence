@@ -112,7 +112,7 @@
 
 + (NSDate *)convertStringToDate:(NSString*)date {
     NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-    [dateFormat setDateFormat:@"MM/dd/yyyy hh:mm:ss a"];
+    [dateFormat setDateFormat:@"MM/dd/yyyy hh:mm:ss Z"];
     [dateFormat setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
     NSDate *cI = [dateFormat dateFromString:date];
     return cI;
@@ -122,7 +122,7 @@
     NSLog(@"Probar");
     NSLog(@"%@", date);
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"MM/dd/yyyy hh:mm:ss a"];
+    [formatter setDateFormat:@"MM/dd/yyyy hh:mm:ss Z"];
     return [formatter stringFromDate:[NSDate date]];
 }
 
