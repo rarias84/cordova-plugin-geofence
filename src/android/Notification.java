@@ -6,6 +6,8 @@ import android.net.Uri;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.Date;
+
 public class Notification {
     private Context context;
     private AssetUtil assets;
@@ -23,6 +25,8 @@ public class Notification {
     @Expose public String deeplink;
     @Expose public boolean happensOnce;
     @Expose public boolean notificationShowed = false;
+    @Expose public int secondsBetweenNotifications = 0;
+    @Expose public Date dateNotificationShowed;
 
     public void setContext(Context context) {
         this.context = context;

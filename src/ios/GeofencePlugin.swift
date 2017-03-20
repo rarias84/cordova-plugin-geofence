@@ -378,6 +378,7 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate {
 //         let session = URLSession.shared
         
          let task = URLSession.shared.dataTask(with: request as URLRequest, completionHandler: {data, response, error -> Void in
+
              print("Response: \(response)")
              if response == nil {
                  return
@@ -400,6 +401,7 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate {
     }
     
     func handleTransition(_ region: CLRegion!, transitionType: Int) {
+
         //callService()
         if region is CLCircularRegion {
             if var geoNotification = store.findById(region.identifier) {

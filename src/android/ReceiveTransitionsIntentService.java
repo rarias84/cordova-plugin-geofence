@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Calendar;
 
 public class ReceiveTransitionsIntentService extends IntentService {
     protected static final String GeofenceTransitionIntent = "com.cowbell.cordova.geofence.TRANSITION";
@@ -79,7 +80,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
         public void onReceive(Context context, Intent intent) {
 
             Logger logger = Logger.getLogger();
-            logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - broadcast callback received.");
+            logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - broadcast callback received 2.");
 
             notifier = new GeoNotificationNotifier((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE), context);
 
@@ -121,7 +122,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
                                     .getGeoNotification(fenceId);
 
                             showNotification = validateTimeInterval(geoNotification);
-
+                            
                             if (geoNotification != null) {
                                 geoNotification.openedFromNotification = false;
                                 geoNotification.transitionType = transitionType;
@@ -180,15 +181,43 @@ public class ReceiveTransitionsIntentService extends IntentService {
         boolean happensOnce = geoNotification.notification.happensOnce;
         boolean notificationShowed = geoNotification.notification.notificationShowed;
 
+        Date timestampNotificationShowed = geoNotification.notification.dateNotificationShowed;
+        int secondsBetweenNotifications = geoNotification.notification.secondsBetweenNotifications;
+
+//        logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Geofence transition detected - happensOnce - "+happensOnce);
+//        logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Geofence transition detected - notificationShowed - "+notificationShowed);
+//        logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Geofence transition detected - timestampNotificationShowed - "+timestampNotificationShowed);
+//        logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Geofence transition detected - secondsBetweenNotifications - "+secondsBetweenNotifications);
+
         if(notificationShowed && happensOnce){
             showNotification = false;
             return showNotification;
         }
 
+        Date dateNow = new Date();
         if((timestampStart == null || timestampStart == "") && (timestampEnd == null || timestampEnd == "")) {
-            showNotification = true;
+            if (secondsBetweenNotifications == 0) {
+                showNotification = true;
+            }else{
+                if (timestampNotificationShowed == null ){
+                    showNotification = true;
+                }else{
+//                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Vamo a calcular ");
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(timestampNotificationShowed);
+                    calendar.add(Calendar.SECOND, secondsBetweenNotifications);
+//                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - Now "+dateNow);
+//                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - timestampNotificationShowed "+timestampNotificationShowed);
+//                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - calendar.getTime() o sea +120 segundos "+calendar.getTime());
+                    showNotification = !dateIsBetweenIntervalDate(dateNow, timestampNotificationShowed, calendar.getTime());
+//                    logger.log(Log.DEBUG, "ReceiveTransitionsIntentService - showNotification  "+showNotification);
+                }
+                if (showNotification){
+                    geoNotification.notification.dateNotificationShowed = dateNow;
+                    store.setGeoNotification(geoNotification);
+                }
+            }
         } else {
-            Date dateNow = new Date();
             DateFormat formatter ;
             Date dateStart = null;
             Date dateEnd = null;
@@ -212,8 +241,16 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
             showNotification = dateIsBetweenIntervalDate(dateNow, dateStart, dateEnd);
 
+            if (timestampNotificationShowed != null ){
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(timestampNotificationShowed);
+                calendar.add(Calendar.SECOND, secondsBetweenNotifications);
+                showNotification = showNotification ? !dateIsBetweenIntervalDate(dateNow, timestampNotificationShowed, calendar.getTime()) : showNotification;
+            }
+
             if(showNotification && !notificationShowed && happensOnce) {
                 geoNotification.notification.notificationShowed = true;
+                geoNotification.notification.dateNotificationShowed = dateNow;
                 store.setGeoNotification(geoNotification);
 
                 List<String> ids = new ArrayList<String>();
