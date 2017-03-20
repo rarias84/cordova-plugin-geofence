@@ -67,13 +67,18 @@ CLLocationManager *knewLocationManager;
 }
 
 - (BOOL) geofencing_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
-    knewLocationManager = [CLLocationManager new];
-    knewLocationManager.delegate = self;
-    [knewLocationManager requestAlwaysAuthorization];
-    
-    if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeSound categories:nil]];
+
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0) {
+        //older than iOS 8 code here
+    } else {
+        //iOS 8 specific code here
+        knewLocationManager = [CLLocationManager new];
+        knewLocationManager.delegate = self;
+        [knewLocationManager requestAlwaysAuthorization];
+        
+        if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
+            [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeSound categories:nil]];
+        }
     }
     
     return [self geofencing_application:application didFinishLaunchingWithOptions:launchOptions];
